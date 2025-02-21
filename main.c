@@ -27,13 +27,13 @@ void USART_Init(uint32_t baud_rate) {
 }
 
 void Keypad_Init() {
-	DDRD |= (1<<DDD4) | (1 << DDD5) | (1<<DDD6) | (1 << DDD7); // Set registers PD4-7 to high (output) // Acts as rows
+	DDRD |= (1<<DDD4) | (1 << DDD5) | (1 << DDD6) | (1 << DDD7); // Set registers PD4-7 to high (output) // Acts as rows
 	PORTD |=  (1 << PORTD4) | (1 << PORTD5) | (1 << PORTD6) | (1 << PORTD7); // enable pullup resistors for the rows
-	DDRB ^= (1 << DDB0) | (1 << DDB1) | (1 << DDB2) | (DDB3); // Set registers PB0-3 to low (input) // Acts as columns
+	DDRB &= ~(1 << DDB0) & ~(1 << DDB1) & ~(1 << DDB2) & ~(1 << DDB3); // Set registers PB0-3 to low (input) // Acts as columns
 	PORTB |=  (1 << PORTB0) | (1 << PORTB1) | (1 << PORTB2) | (1 << PORTB3); // enable pullup resistors for the columns
 }
 
-const char keypad[4][4] = {
+const unsigned char keypad[4][4] = {
 	{'1', '2', '3', 'A'},
 	{'4', '5', '6', 'B'},
 	{'7', '8', '9', 'C'},
@@ -70,14 +70,14 @@ int main() {
 	Keypad_Init();
 	while (1) {
 		for (int i = 4; i < 8; i++)  {
-			PORTD ^= (1 << i); // Disable row pullup resistor // ASK: why do we not need to disable the column pullup?
+			PORTD &= ~(1 << i); // Disable row pullup resistor
 			for (int j = 0; j < 4; j++) {
 				if (!(PINB & (1 << j))) {
 					USART_Transmit(keypad[i-4][j]);
-					_delay_ms(500); // debounce
+					_delay_ms(300); // debounce
 				}
 			}
-			PORTD |= 1 << i; // reenable pullup resistor
+			PORTD |= (1 << i); // reenable row pullup resistor
 		}
 	}
 	return 0;
