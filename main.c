@@ -75,6 +75,7 @@ int main() {
 				if (!(PINB & (1 << j))) {
 					USART_Transmit(keypad[i-4][j]);
 					_delay_ms(300); // debounce
+				while (!(PINB & (1 << j))) {}; // prevent repeating keys when key is held down
 				}
 			}
 			PORTD |= (1 << i); // reenable row pullup resistor
